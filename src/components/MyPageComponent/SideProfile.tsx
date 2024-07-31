@@ -1,4 +1,5 @@
 import { membersApi } from '@api/member';
+import ChangePrice from '@components/DepositRechargeComponent/Price';
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Modal from '../../utils/Modal';
@@ -118,17 +119,24 @@ export default function SideProfile({
   balance,
 }: SideProfileProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isChargeModalOpen, setIsChargeModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null); //파일저장
   const [currentProfileImage, setCurrentProfileImage] = useState(profileImage); //현재 프로필 저장
   const [isFileSelected, setIsFileSelected] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const [modalKey, setModalKey] = useState(0);
   useEffect(() => {
     setCurrentProfileImage(profileImage);
   }, [profileImage]);
 
   const toggleModal = () => {
+    if (!isModalOpen) {
+      setModalKey(prevKey => prevKey + 1);
+    }
     setIsModalOpen(!isModalOpen);
+  };
+  const toggleChargeModal = () => {
+    setIsChargeModalOpen(!isChargeModalOpen);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,10 +190,13 @@ export default function SideProfile({
       <NameTitle>닉네임</NameTitle>
       <Name>{nickname || 'Anonymous'}</Name>
       <Money>예치금 : {balance.toLocaleString()} 원</Money>
-      <ChargeButton>충전하기</ChargeButton>
+      <ChargeButton onClick={toggleChargeModal}>충전하기</ChargeButton>
+      <Modal isOpen={isChargeModalOpen} onClose={toggleChargeModal}>
+        <ChangePrice />
+      </Modal>
       <TradeButton onClick={toggleModal}>거래중</TradeButton>
       <Modal isOpen={isModalOpen} onClose={toggleModal}>
-        <TradeHistory />
+        <TradeHistory key={modalKey} />
       </Modal>
       <Footer>
         <SignOutButton>로그아웃</SignOutButton>
